@@ -259,7 +259,8 @@ class RefreshTokenRepository:
         return self._to_entity(model) if model else None
 
     async def revoke_all_for_user(self, user_id: uuid.UUID) -> int:
-        from datetime import UTC, datetime
+        from datetime import datetime, timezone
+        UTC = timezone.utc
         stmt = (
             RefreshTokenModel.__table__.update()
             .where(RefreshTokenModel.user_id == user_id, RefreshTokenModel.revoked_at.is_(None))

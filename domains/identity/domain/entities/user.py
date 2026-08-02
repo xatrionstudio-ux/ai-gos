@@ -9,7 +9,9 @@ by entity methods — never by infrastructure code.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from enum import StrEnum
 from typing import TYPE_CHECKING
 

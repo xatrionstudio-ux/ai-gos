@@ -5,7 +5,9 @@ SQLAlchemy ORM model for Projects domain.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from typing import Any
 
 from sqlalchemy import BOOLEAN, Column, ForeignKey, TEXT, TIMESTAMP

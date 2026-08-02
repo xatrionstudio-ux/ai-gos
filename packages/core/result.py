@@ -16,7 +16,7 @@ Usage:
 
 from __future__ import annotations
 
-from typing import Callable, Generic, TypeVar
+from typing import Callable, Generic, TypeVar, Union
 
 T = TypeVar("T")
 E = TypeVar("E", bound=Exception)
@@ -72,4 +72,4 @@ class Err(Generic[E]):
 
 
 # Type alias
-Result = Ok[T] | Err[E]
+Result = Union[Ok[T], Err[E]]

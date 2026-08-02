@@ -16,7 +16,9 @@ Events are serialized to JSON for persistence and Redis pub/sub.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field

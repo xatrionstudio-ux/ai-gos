@@ -225,5 +225,5 @@ class AuthService:
 
 
 def refresh_entity_now():
-    from datetime import UTC, datetime
-    return datetime.now(UTC)
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc)

@@ -7,7 +7,9 @@ No raw dictionaries! Each domain aspect has its own immutable, typed state class
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from enum import StrEnum
 from typing import Any
 

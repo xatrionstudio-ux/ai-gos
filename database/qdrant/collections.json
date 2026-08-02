@@ -1,0 +1,25 @@
+{
+  "collections": [
+    {
+      "name": "pkl_documents_v1",
+      "vectors": {
+        "size": 3072,
+        "distance": "Cosine"
+      },
+      "optimizers_config": {
+        "default_segment_number": 2
+      },
+      "hnsw_config": {
+        "m": 16,
+        "ef_construct": 100
+      }
+    },
+    {
+      "name": "semantic_memory_v1",
+      "vectors": {
+        "size": 3072,
+        "distance": "Cosine"
+      }
+    }
+  ]
+}

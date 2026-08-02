@@ -1,0 +1,29 @@
+asyncapi: 3.0.0
+info:
+  title: AGOS Domain Event Bus
+  version: 1.0.0
+  description: AsyncAPI specification for all inter-domain events in AGOS.
+
+channels:
+  knowledgeUpdated:
+    address: aigos.events.knowledge.updated
+    messages:
+      knowledgeUpdatedEvent:
+        payload:
+          type: object
+          properties:
+            event_id: { type: string, format: uuid }
+            tenant_id: { type: string, format: uuid }
+            project_id: { type: string, format: uuid }
+            event_type: { type: string, example: "knowledge.updated" }
+            version: { type: integer, example: 1 }
+
+  workflowCompleted:
+    address: aigos.events.workflow.completed
+    messages:
+      workflowCompletedEvent:
+        payload:
+          type: object
+          properties:
+            workflow_id: { type: string, format: uuid }
+            status: { type: string, example: "completed" }

@@ -1,0 +1,44 @@
+# AGOS Kubernetes Deployment Manifests
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agos-api
+  labels:
+    app: agos-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agos-api
+  template:
+    metadata:
+      labels:
+        app: agos-api
+    spec:
+      containers:
+      - name: api
+        image: xatrionstudio/agos-api:1.0.0
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: agos-secrets
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5

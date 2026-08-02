@@ -1,0 +1,10 @@
+[project]
+name = "tools"
+version = "1.0.0"
+description = "AI-GOS Tool Ecosystem & MCP Client Integration Broker"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9.0",
+    "core",
+    "events",
+]

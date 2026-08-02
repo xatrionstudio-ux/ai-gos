@@ -1,0 +1,11 @@
+[project]
+name = "memory"
+version = "1.0.0"
+description = "AI-GOS Memory Engine — 7-Layer Memory Broker & Context Management"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "core",
+    "events",
+]

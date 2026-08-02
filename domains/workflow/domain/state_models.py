@@ -10,7 +10,13 @@ import uuid
 from datetime import datetime, timezone
 
 UTC = timezone.utc
-from enum import StrEnum
+from enum import Enum
+
+try:
+    from enum import StrEnum
+except ImportError:
+    class StrEnum(str, Enum):
+        pass
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field

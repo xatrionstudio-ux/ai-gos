@@ -1,0 +1,14 @@
+[project]
+name = "content"
+version = "1.0.0"
+description = "AI-GOS Content Domain — Articles, outlines, drafting, review agents, diff versioning"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "core",
+    "events",
+    "ai",
+    "knowledge",
+    "research",
+]

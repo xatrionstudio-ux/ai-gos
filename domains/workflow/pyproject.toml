@@ -1,0 +1,14 @@
+[project]
+name = "workflow"
+version = "1.0.0"
+description = "AI-GOS LangGraph Workflow Orchestration domain"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9.0",
+    "langgraph>=0.2.20",
+    "langchain-core>=0.3.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "core",
+    "events",
+    "ai",
+]

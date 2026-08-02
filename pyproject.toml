@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-gos"
+version = "1.0.0"
+description = "AI Growth Operating System — autonomous marketing lifecycle platform"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Proprietary"}
+
+[tool.uv.workspace]
+members = [
+  "apps/api",
+  "apps/worker",
+  "apps/scheduler",
+  "packages/core",
+  "packages/events",
+  "domains/identity",
+  "domains/projects",
+  "domains/knowledge",
+  "domains/research",
+  "domains/seo",
+  "domains/content",
+  "domains/publishing",
+  "domains/analytics",
+  "domains/workflow",
+  "domains/ai",
+  "domains/billing",
+  "domains/notifications",
+  "domains/settings",
+  "domains/observability",
+  "domains/administration",
+]
+
+[tool.uv.sources]
+core = { workspace = true }
+events = { workspace = true }
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+select = ["E", "F", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T20", "RUF"]
+ignore = ["S101"]  # allow assert in tests
+
+[tool.ruff.per-file-ignores]
+"**/tests/**" = ["S", "T20"]
+"**/migrations/**" = ["ALL"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["domains", "apps", "packages"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+  "--cov=.",
+  "--cov-report=term-missing",
+  "--cov-report=xml:coverage.xml",
+  "-v",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["apps", "packages", "domains"]
+omit = ["*/tests/*", "*/migrations/*", "*/__init__.py"]

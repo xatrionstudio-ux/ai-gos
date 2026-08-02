@@ -1,0 +1,64 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+*.pyo
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# ─── Testing ──────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+apps/web/.next/
+apps/web/out/
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+*.override.yml
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# ─── Secrets / Keys ───────────────────────────────────────────────────────────
+infrastructure/keys/
+*.pem
+*.key
+*.crt
+*.p12
+
+# ─── Terraform ────────────────────────────────────────────────────────────────
+infrastructure/terraform/**/.terraform/
+infrastructure/terraform/**/terraform.tfstate
+infrastructure/terraform/**/terraform.tfstate.backup
+infrastructure/terraform/**/.terraform.lock.hcl
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Generated ────────────────────────────────────────────────────────────────
+packages/sdk/generated/

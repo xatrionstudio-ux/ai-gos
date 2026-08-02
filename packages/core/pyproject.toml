@@ -1,0 +1,10 @@
+[project]
+name = "core"
+version = "1.0.0"
+description = "AI-GOS shared domain primitives"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "uuid7>=0.1.0",
+]

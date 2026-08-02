@@ -1,0 +1,22 @@
+{
+  "name": "ai-gos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Growth Operating System",
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "apps/web",
+    "packages/sdk"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "test": "pnpm --filter web test",
+    "type-check": "pnpm --filter web type-check"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

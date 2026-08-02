@@ -22,6 +22,7 @@ from domains.identity.infrastructure.repositories.user_repository import (
     RefreshTokenRepository,
     UserRepository,
 )
+from domains.identity.api.dependencies import get_db_session
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class AuthResponse(BaseModel):
 
 # ─── Helper Dependency ────────────────────────────────────────────────────────
 
-async def get_auth_service(session: AsyncSession) -> AuthService:
+async def get_auth_service(session: AsyncSession = Depends(get_db_session)) -> AuthService:
     user_repo = UserRepository(session)
     org_repo = OrganizationRepository(session)
     token_repo = RefreshTokenRepository(session)
@@ -88,29 +89,30 @@ async def register(
     )
     result = await service.register_organization_and_owner(cmd)
 
-    match result:
-        case Ok((org, user, tokens)):
-            # Set secure refresh token cookie
-            response.set_cookie(
-                key="__Host-refresh_token",
-                value=tokens.refresh_token,
-                httponly=True,
-                secure=True,
-                samesite="lax",
-                max_age=30 * 86400,
-                path="/api/v1/auth",
-            )
-            return AuthResponse(
-                access_token=tokens.access_token,
-                expires_in=tokens.expires_in_seconds,
-                user_id=str(tokens.user_id),
-                org_id=str(tokens.org_id),
-            )
-        case Err(error):
-            raise HTTPException(
-                status_code=getattr(error, "status_code", 400),
-                detail=error.to_dict() if hasattr(error, "to_dict") else str(error),
-            )
+    if isinstance(result, Ok):
+        org, user, tokens = result.value
+        # Set secure refresh token cookie
+        response.set_cookie(
+            key="__Host-refresh_token",
+            value=tokens.refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 86400,
+            path="/api/v1/auth",
+        )
+        return AuthResponse(
+            access_token=tokens.access_token,
+            expires_in=tokens.expires_in_seconds,
+            user_id=str(tokens.user_id),
+            org_id=str(tokens.org_id),
+        )
+    elif isinstance(result, Err):
+        error = result.error
+        raise HTTPException(
+            status_code=getattr(error, "status_code", 400),
+            detail=error.to_dict() if hasattr(error, "to_dict") else str(error),
+        )
 
 
 @router.post(
@@ -133,28 +135,28 @@ async def login(
     )
     result = await service.login(cmd)
 
-    match result:
-        case Ok((user, tokens)):
-            response.set_cookie(
-                key="__Host-refresh_token",
-                value=tokens.refresh_token,
-                httponly=True,
-                secure=True,
-                samesite="lax",
-                max_age=30 * 86400,
-                path="/api/v1/auth",
-            )
-            return AuthResponse(
-                access_token=tokens.access_token,
-                expires_in=tokens.expires_in_seconds,
-                user_id=str(tokens.user_id),
-                org_id=str(tokens.org_id),
-            )
-        case Err(error):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"code": "INVALID_CREDENTIALS", "message": "Invalid email or password."},
-            )
+    if isinstance(result, Ok):
+        user, tokens = result.value
+        response.set_cookie(
+            key="__Host-refresh_token",
+            value=tokens.refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 86400,
+            path="/api/v1/auth",
+        )
+        return AuthResponse(
+            access_token=tokens.access_token,
+            expires_in=tokens.expires_in_seconds,
+            user_id=str(tokens.user_id),
+            org_id=str(tokens.org_id),
+        )
+    elif isinstance(result, Err):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "INVALID_CREDENTIALS", "message": "Invalid email or password."},
+        )
 
 
 @router.post(
@@ -182,33 +184,35 @@ async def refresh_token(
         ip_address=request.client.host if request.client else None,
     )
 
-    match result:
-        case Ok(tokens):
-            response.set_cookie(
-                key="__Host-refresh_token",
-                value=tokens.refresh_token,
-                httponly=True,
-                secure=True,
-                samesite="lax",
-                max_age=30 * 86400,
-                path="/api/v1/auth",
-            )
-            return AuthResponse(
-                access_token=tokens.access_token,
-                expires_in=tokens.expires_in_seconds,
-                user_id=str(tokens.user_id),
-                org_id=str(tokens.org_id),
-            )
-        case Err(error):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=error.to_dict() if hasattr(error, "to_dict") else str(error),
-            )
+    if isinstance(result, Ok):
+        tokens = result.value
+        response.set_cookie(
+            key="__Host-refresh_token",
+            value=tokens.refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 86400,
+            path="/api/v1/auth",
+        )
+        return AuthResponse(
+            access_token=tokens.access_token,
+            expires_in=tokens.expires_in_seconds,
+            user_id=str(tokens.user_id),
+            org_id=str(tokens.org_id),
+        )
+    elif isinstance(result, Err):
+        error = result.error
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=error.to_dict() if hasattr(error, "to_dict") else str(error),
+        )
 
 
 @router.post(
     "/logout",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
     summary="Revoke refresh token and logout",
 )
 async def logout(

@@ -5,10 +5,11 @@ FastAPI router for Projects endpoints.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.pagination import OffsetPage, PaginationParams
@@ -45,6 +46,8 @@ class UpdateProjectRequest(BaseModel):
 
 
 class ProjectResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     org_id: uuid.UUID
     name: str
@@ -53,8 +56,8 @@ class ProjectResponse(BaseModel):
     seo_strategy: SEOStrategy
     cms_config: CMSConfig
     status: str
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
 
     @classmethod
     def from_entity(cls, p: Project) -> "ProjectResponse":
@@ -67,9 +70,12 @@ class ProjectResponse(BaseModel):
             seo_strategy=p.seo_strategy,
             cms_config=p.cms_config,
             status=p.status,
-            created_at=p.created_at.isoformat(),
-            updated_at=p.updated_at.isoformat(),
+            created_at=p.created_at,
+            updated_at=p.updated_at,
         )
+
+
+ProjectResponse.model_rebuild()
 
 
 async def get_project_service(session: AsyncSession = Depends(get_db_session)) -> ProjectService:
@@ -100,11 +106,10 @@ async def create_project(
         cms_config=req.cms_config,
     )
     res = await service.create_project(cmd)
-    match res:
-        case Ok(project):
-            return ProjectResponse.from_entity(project)
-        case Err(error):
-            raise HTTPException(status_code=400, detail=str(error))
+    if res.is_ok():
+        return ProjectResponse.from_entity(res.value)
+    else:
+        raise HTTPException(status_code=400, detail=str(res.error))
 
 
 @router.get(
@@ -121,12 +126,11 @@ async def list_projects(
 ) -> OffsetPage[ProjectResponse]:
     params = PaginationParams(page=page, size=size)
     res = await service.list_projects(current_user.org_id, params)
-    match res:
-        case Ok(paged_projects):
-            items = [ProjectResponse.from_entity(p) for p in paged_projects.items]
-            return OffsetPage.create(items=items, total=paged_projects.total, params=params)
-        case Err(error):
-            raise HTTPException(status_code=400, detail=str(error))
+    if res.is_ok():
+        items = [ProjectResponse.from_entity(p) for p in res.value.items]
+        return OffsetPage.create(items=items, total=res.value.total, params=params)
+    else:
+        raise HTTPException(status_code=400, detail=str(res.error))
 
 
 @router.get(
@@ -141,11 +145,10 @@ async def get_project(
     service: ProjectService = Depends(get_project_service),
 ) -> ProjectResponse:
     res = await service.get_project(project_id, current_user.org_id)
-    match res:
-        case Ok(project):
-            return ProjectResponse.from_entity(project)
-        case Err(error):
-            raise HTTPException(status_code=404, detail=str(error))
+    if res.is_ok():
+        return ProjectResponse.from_entity(res.value)
+    else:
+        raise HTTPException(status_code=404, detail=str(res.error))
 
 
 @router.patch(
@@ -170,16 +173,16 @@ async def update_project(
         cms_config=req.cms_config,
     )
     res = await service.update_project(cmd)
-    match res:
-        case Ok(project):
-            return ProjectResponse.from_entity(project)
-        case Err(error):
-            raise HTTPException(status_code=400, detail=str(error))
+    if res.is_ok():
+        return ProjectResponse.from_entity(res.value)
+    else:
+        raise HTTPException(status_code=400, detail=str(res.error))
 
 
 @router.delete(
     "/{project_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
     summary="Delete a project profile",
 )
 async def delete_project(

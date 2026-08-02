@@ -27,6 +27,16 @@ sys.path.insert(0, str(_root_dir))
 sys.path.insert(0, str(_root_dir / "packages"))
 sys.path.insert(0, str(_root_dir / "domains"))
 
+from fastapi.responses import JSONResponse
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+    _HAS_PROMETHEUS = True
+except ImportError:
+    CONTENT_TYPE_LATEST = "text/plain"
+    def generate_latest(): return b"# prometheus metrics\n"
+    _HAS_PROMETHEUS = False
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+
 from core.exceptions import AIGOSException
 from domains.identity.api.auth_router import router as auth_router
 from domains.identity.api.dependencies import get_db_session

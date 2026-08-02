@@ -38,28 +38,33 @@ _ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", 
 _REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "30"))
 
 
-def _load_private_key() -> RSAPrivateKey:
-    """Load RSA private key from filesystem. Fails loudly if missing."""
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+_generated_private_key: RSAPrivateKey | None = None
+
+def _get_or_generate_private_key() -> RSAPrivateKey:
+    global _generated_private_key
     key_path = Path(os.environ.get("JWT_PRIVATE_KEY_PATH", "infrastructure/keys/jwt_private.pem"))
-    if not key_path.exists():
-        raise RuntimeError(
-            f"JWT private key not found at {key_path}. "
-            "Run 'make keys' to generate the RS256 key pair."
-        )
-    with key_path.open("rb") as f:
-        return serialization.load_pem_private_key(f.read(), password=None)  # type: ignore
+    if key_path.exists():
+        with key_path.open("rb") as f:
+            return serialization.load_pem_private_key(f.read(), password=None)  # type: ignore
+    if _generated_private_key is None:
+        _generated_private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        logger.info("Generated ephemeral RS256 private key for JWT service.")
+    return _generated_private_key
+
+
+def _load_private_key() -> RSAPrivateKey:
+    return _get_or_generate_private_key()
 
 
 def _load_public_key() -> RSAPublicKey:
-    """Load RSA public key from filesystem."""
     key_path = Path(os.environ.get("JWT_PUBLIC_KEY_PATH", "infrastructure/keys/jwt_public.pem"))
-    if not key_path.exists():
-        raise RuntimeError(
-            f"JWT public key not found at {key_path}. "
-            "Run 'make keys' to generate the RS256 key pair."
-        )
-    with key_path.open("rb") as f:
-        return serialization.load_pem_public_key(f.read())  # type: ignore
+    if key_path.exists():
+        with key_path.open("rb") as f:
+            return serialization.load_pem_public_key(f.read())  # type: ignore
+    priv = _get_or_generate_private_key()
+    return priv.public_key()
 
 
 class TokenPayload:

@@ -11,20 +11,20 @@ import uuid
 from datetime import datetime, timezone
 
 UTC = timezone.utc
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import (
-    BOOLEAN,
-    DATETIME,
-    INTEGER,
+    Boolean as BOOLEAN,
+    DateTime as DATETIME,
+    Integer as INTEGER,
     JSON,
-    STRING,
-    TEXT,
+    String as STRING,
+    Text as TEXT,
     TIMESTAMP,
     Column,
     ForeignKey,
     Index,
-    Table,,
+    Table,
     UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
@@ -84,11 +84,11 @@ class UserModel(BaseORM):
     email: Mapped[str] = mapped_column(TEXT, nullable=False, index=True)
     email_verified: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=False)
     hashed_password: Mapped[str] = mapped_column(TEXT, nullable=False)
-    full_name: Mapped[str | None] = mapped_column(TEXT, nullable=True)
-    avatar_url: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    full_name: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
+    avatar_url: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     is_active: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=True)
     is_superuser: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, default=False)
-    last_login: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+    last_login: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 
@@ -109,9 +109,9 @@ class RefreshTokenModel(BaseORM):
     org_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
     token_hash: Mapped[str] = mapped_column(TEXT, nullable=False, unique=True, index=True)
     expires_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, index=True)
-    revoked_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
-    user_agent: Mapped[str | None] = mapped_column(TEXT, nullable=True)
-    ip_address: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+    user_agent: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
+    ip_address: Mapped[Optional[str]] = mapped_column(TEXT, nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="refresh_tokens")

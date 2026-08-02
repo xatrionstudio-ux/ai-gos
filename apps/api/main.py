@@ -18,9 +18,14 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+import sys
+from pathlib import Path
+
+# Add monorepo package & domain paths to sys.path for cloud deployment compatibility
+_root_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(_root_dir))
+sys.path.insert(0, str(_root_dir / "packages"))
+sys.path.insert(0, str(_root_dir / "domains"))
 
 from core.exceptions import AIGOSException
 from domains.identity.api.auth_router import router as auth_router

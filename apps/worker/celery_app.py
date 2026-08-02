@@ -12,9 +12,14 @@ Queues:
 
 from __future__ import annotations
 
-import logging
-import os
-from celery import Celery
+import sys
+from pathlib import Path
+
+# Add monorepo package & domain paths to sys.path for cloud deployment compatibility
+_root_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(_root_dir))
+sys.path.insert(0, str(_root_dir / "packages"))
+sys.path.insert(0, str(_root_dir / "domains"))
 
 logger = logging.getLogger("ai-gos-worker")
 

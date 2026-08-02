@@ -1,0 +1,39 @@
+# Render Blueprint (render.yaml) for AGOS (AI Growth Operating System)
+services:
+  # 1. API Service (FastAPI)
+  - type: web
+    name: agos-api
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: "pip install uv && uv pip install --system -e packages/core -e packages/events -e packages/tools -e domains/identity -e domains/projects -e domains/knowledge -e domains/research -e domains/content -e domains/ai -e domains/workflow -e domains/memory -e domains/observability -e domains/tenant -e apps/api"
+    startCommand: "python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHONPATH
+        value: "packages:domains:."
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+
+  # 2. Worker Service (Celery)
+  - type: worker
+    name: agos-worker
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: "pip install uv && uv pip install --system -e packages/core -e packages/events -e packages/tools -e domains/identity -e domains/projects -e domains/knowledge -e domains/research -e domains/content -e domains/ai -e domains/workflow -e domains/memory -e domains/observability -e domains/tenant -e apps/worker"
+    startCommand: "python -m celery -A apps.worker.celery_app worker --loglevel=info"
+    envVars:
+      - key: PYTHONPATH
+        value: "packages:domains:."
+
+  # 3. Web Dashboard (Next.js 14)
+  - type: web
+    name: agos-web
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: "npm install -g pnpm && pnpm install && pnpm --filter web build"
+    startCommand: "pnpm --filter web start"
+    envVars:
+      - key: NODE_VERSION
+        value: "20.10.0"
